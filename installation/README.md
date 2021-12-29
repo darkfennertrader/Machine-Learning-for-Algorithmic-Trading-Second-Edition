@@ -1,21 +1,177 @@
 # Installation instructions
 
-This book uses (mostly) Python 3.7 and various ML- and trading-related libraries available in three different [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) based on the [Miniconda](https://docs.conda.io/en/latest/miniconda.html) distribution. I developed the content on Ubuntu 20.04 while also testing on Mac OS 10.15 (Catalina). 
+> Update April 25, 2021: The [new Zipline version](https://github.com/stefan-jansen/zipline-reloaded) permits running the backtest notebooks without Docker on all operating systems; the installation instructions now refer to Windows/MacOS/Linux environment files.  
 
-Depending on your OS, you may have several options to create these environments. These are, in increasing order of complexity:
- 1. **Recommended**: use [Docker](https://www.docker.com/) Desktop to pull an image from [Docker Hub](https://www.docker.com/products/docker-hub) and create a local container with the requisite software to run the notebooks. 
- 2. Create the [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) using the provided `.yml` environment files as outlined below. However, the backtesting environment that relies on the [patched](https://github.com/stefan-jansen/zipline) version of `zipline` only exists for **Ubuntu** due to numerous version conflicts. 
- 3. If you are experienced (and work on a UNIX-based system), you can also create your own virtual environments and install the libraries required for the different notebooks using `pip` as needed. 
+> Update March 14, 2021: I have just released a [new Zipline version](https://github.com/stefan-jansen/zipline-reloaded) that runs on Python 3.7-3.9; see [release info](https://github.com/stefan-jansen/zipline-reloaded/releases/tag/2.0.0rc4) and [docs](https://zipline.ml4trading.io/). As a result, the Docker solution will no longer be necessary going forward and I will provide new environment files over the course of April.
 
-We'll describe the first two options in turn. Then, we address how to work with [Jupyter](https://jupyter.org/) notebooks to view and execute the code examples. Finally, we list additional installation instructions for libraries that require non-python dependencies like [TA-Lib](https://mrjbq7.github.io/ta-lib/) for technical analysis.
+> Update Feb 26, 2021: Release 2.0 reduces the number of environments to 2 and bumps the Python version to 3.8 for the main `ml4t` and to 3.6 for the `backtest` environment.
+> Instructions below reflect these changes.
+> 
+> To update the Docker image to the latest version, run:
+> ```docker pull appliedai/packt:latest```
 
-## Running the notebooks using a Docker container
+This book uses Python 3.8 and various ML- and trading-related libraries that can be installed:
+
+1. Using [mamba](https://github.com/mamba-org/mamba) in [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) based on the [Miniconda](https://docs.conda.io/en/latest/miniconda.html) distribution and the provided `ml4t.yml` environment files,
+2. For macOS and Linux only: via [pip](https://pip.pypa.io/en/stable/) in a Python virtual environment created with, e.g., [pyenv](https://github.com/pyenv/pyenv) or [venv](https://docs.python.org/3/tutorial/venv.html) using the provided `ml4t.txt` requirement files.
+3. Deprecated: using [Docker](https://www.docker.com/) Desktop to pull an image from [Docker Hub](https://www.docker.com/products/docker-hub) and create a local container with the requisite software to run the notebooks. 
+
+We'll describe how to obtain the source code and then lay out the first two options in turn. Then, we address how to work with [Jupyter](https://jupyter.org/) notebooks to view and execute the code examples. Finally, we list the legacy Docker installation instructions.
+
+## Sourcing the code samples
+
+You can work with the code samples by downloading a compressed version of the [GitHub repository](https://github.com/stefan-jansen/machine-learning-for-trading), or by [cloning](https://www.howtogeek.com/451360/how-to-clone-a-github-repository/) its content. The latter will result in a larger download because it includes the commit history. 
+
+Alternatively, you can create a [fork](https://guides.github.com/activities/forking/) of the repo and continue to develop from there after cloning its content.
+
+To work with the code locally, do the following:
+1. Select a file system location where you would like to store the code and the data.
+2. Using the `ssh` or `https` links or the download option provided by the green `Code` button on the [GitHub repository](https://github.com/stefan-jansen/machine-learning-for-trading), either clone or unzip the code to the target folder.
+    - To clone the starter repo, run `git clone https://github.com/stefan-jansen/machine-learning-for-trading.git` and change into the new directory.
+    - If you cloned the repo and did not rename it, the root directory will be called `machine-learning-for-trading`, the ZIP the version will unzip to `machine-learning-for-trading-master`.
+
+   
+## How to install the required libraries using `conda` environments
+
+The instructions rely on Anaconda's [miniconda](https://docs.conda.io/en/latest/miniconda.html) distribution, the [mamba](https://github.com/mamba-org/mamba) package manager to facilitate dependency management, and OS-specific environment files at `installation/[windows|macos|linux]/ml4t.yml` with pinned library versions. 
+
+Alternatively, there is also an environment file `installation/ml4t-base.yml` that only contains a list of the required libraries without dependencies; if you use this file instead you will obtain the latest versions - just be aware that at some point more recent software may become incompatible with the examples.
+
+You could also just install the packages required for the notebooks you are interested in; the most recent versions (as of March 2021) should work.
+
+### Install miniconda
+
+The notebooks rely on a single virtual environment based on [miniconda3](https://docs.conda.io/en/latest/miniconda.html) that you need to install first. 
+
+You can find detailed instructions for various operating systems [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
+
+### Create a conda environment from an environment file
+
+[conda] is the package manager provided by the [Anaconda](https://www.anaconda.com/) python distribution. Unfortunately, it is currently [not in very good shape](https://github.com/conda/conda/issues/9707). Instead, we'll use the more recent and much faster [mamba](https://github.com/mamba-org/mamba) package manager to install packages. You can install it using:
+```python
+conda install -n base -c conda-forge mamba
+```
+
+To create a [virtual environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) with the latest versions of the libraries used in the notebooks (as of April 2021), you just need to run one of the following options (depending on your operating system) from the command line in the root directory of the cloned repo:
+
+```bash
+mamba env create -f installation/windows/ml4t.yml 
+mamba env create -f installation/macosx/ml4t.yml 
+mamba env create -f installation/linux/ml4t.yml 
+```
+
+See also [here](https://towardsdatascience.com/getting-started-with-python-environments-using-conda-32e9f2779307) for a more detailed tutorial on virtual environments.
+
+If you want to create a new environment with the latest library versions as of whenever you read this, run
+
+```bash
+conda env create -f installation/ml4t-base.yml
+```
+
+### Activate conda environment
+
+After you've create it, you can activate the environment using its name, which in our case is `ml4t`:
+
+```bash
+conda activate ml4t
+```
+
+To deactivate, simply use
+
+```bash
+conda deactivate
+```
+
+## Installing the libraries using pip
+
+You should install the required libraries in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/). See the docs for the built-in [venv](https://docs.python.org/3/library/venv.html) option, or the [pyenv](https://github.com/pyenv/pyenv) alternative that allows you to run multiple Python versions in parallel.
+
+Several of the libraries require previous installation of OS-specific software, which may depend on the state of your machine. We list a few common cases below. Should you encounter other problems, please consult the documentation for the library causing the issue. In case this does not resolve the matter, please raise an issue on our GitHub so we can take a look and update the instructions here accordingly.  
+
+### Pre-requisites: MacOS
+
+Installation for MacOS requires the following libraries that can be installed via [homebrew](https://brew.sh/):
+```bash
+brew install lightgbm swig xz ta-lib
+```
+
+### Pre-requisites: Linux
+
+On Ubuntu, pre-requisites can be fulfilled via `apt`. For TA-Lib, the [necessary steps](https://artiya4u.medium.com/installing-ta-lib-on-ubuntu-944d8ca24eae) are:
+
+```bash
+# nstall the build tool
+sudo apt install build-essential wget -y
+
+# Download and extract the source code
+wget https://artiya4u.keybase.pub/TA-lib/ta-lib-0.4.0-src.tar.gz
+tar -xvf ta-lib-0.4.0-src.tar.gz
+
+# Config and build from source.
+cd ta-lib/
+./configure --prefix=/usr
+make
+
+# Install to system
+sudo make install
+```
+
+### Installing the requirements
+
+Assuming you have created and activated a virtual environment, you just need to run (depending on your OS):
+```bash
+pip install -U pip setuptools wheel
+pip install -r installation/macosx/ml4t.txt # for macOS
+pip install -r installation/linux/ml4t.txt # for Ubuntu
+```
+
+## Post-installation instructions
+
+
+### Get a QUANDL API Key
+
+To download US equity data that we'll be using for several examples throughout the book in the next step, [register](https://www.quandl.com/sign-up) for a personal Quandl account to obtain an API key. It will be displayed on your [profile](https://www.quandl.com/account/profile) page.
+
+If you are on a UNIX-based system like Mac OSX, you may want to store the API key in an environment variable such as QUANDL_API_KEY, e.g. by adding `export QUANDL_API_KEY=<your_key>` to your `.bash_profile`.  
+
+### Ingesting Zipline data
+
+To run Zipline backtests, we need to `ingest` data. See the [Beginner Tutorial](https://zipline.ml4trading.io/beginner-tutorial.html) for more information. 
+
+Per default, Zipline stores data in your user directory under `~/.zipline` directory. 
+
+From the command prompt, activate your `ml4t` virtual environment and run:
+```bash
+zipline ingest -b quandl
+``` 
+
+You should see numerous messages (including some warnings that you can ignore) as Zipline processes around 3,000 stock price series.
+
+### Working with Jupyter notebooks
+
+This section covers how to set up notebook extension that facilitate working in this environment and how to convert notebooks to python script if preferred. 
+
+#### Set up jupyter extensions
+
+jupyter notebooks can use a range of [extentsion](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) provided by the community. There are many useful ones that are described in the [documentation](https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/).
+
+The notebooks in this repo are formatted to use the [Table of Contents (2)](https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/nbextensions/toc2/README.html) extension. For the best experience, activate it using the Configurator in the [Nbextensions](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) tab available in your browser after starting the jupyter server. Modify the settings to check the option 'Leave h1 items out of ToC' if not set by default.
+
+#### Converting jupyter notebooks to python scripts
+
+The book uses [jupyter](https://jupyter.org/) notebooks to present the code with extensive commentary and context information and facilitate the visualization of results in one place. Some of the code examples are longer and make more sense to run as `python` scripts; you can convert a notebook to a script by running the following on the command line:
+
+```bash
+$ jupyter nbconvert --to script [YOUR_NOTEBOOK].ipynb
+```
+
+## Legacy Instructions: Running the notebooks using a Docker container
 
 Docker Desktop is a very popular application for MacOS and Windows machines because is permits for the easy sharing of containerized applications across different OS. For this book, we have a Docker image that let's you instantiate a container to run Ubuntu 20.04 as a guest OS with the pre-installed [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) on Windows 10 or Mac OS X without worrying about dependencies on your host.
 
 ### Installing Docker Desktop 
 
-As usual, installation differs for Mac OS X and and Window 10, and requires an additional step for Windows 10 Home to enable virtualization. 
+As usual, installation differs for Mac OS X and Window 10, and requires an additional step for Windows 10 Home to enable virtualization. 
 
 We'll cover installation for each OS separately and then address some setting adjustments necessary in both cases.
 
@@ -82,6 +238,7 @@ Review the [Getting Started](https://docs.docker.com/docker-for-windows/) guide 
 The getting started guides for each OS referenced above describe the Docker Desktop settings.
 
 #### Increasing memory 
+
 - Under Preferences, look for Resources to find out how you can increase the memory allocated to the container; the default setting is too low given the size of the data. Increase to at least 4GB, better 8GB or more.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 - Several examples are quite memory-intensive, for example the NASDAQ tick data and the SEC filings example in Chapter 2, and will require significantly higher memory allocation.
 
@@ -109,7 +266,7 @@ If you are on a UNIX-based system like Mac OSX, you may want to store the API ke
 
 ### Downloading the Docker image and running the container
 
-We'll be using a Docker [image](https://hub.docker.com/repository/docker/appliedai/packt) based on the Ubuntu 20.04 OS with [Anaconda](https://www.anaconda.com/)'s [miniconda](https://docs.conda.io/en/latest/miniconda.html) Python distribution installed. It comes with three conda environments describe below. 
+We'll be using a Docker [image](https://hub.docker.com/repository/docker/appliedai/packt) based on the Ubuntu 20.04 OS with [Anaconda](https://www.anaconda.com/)'s [miniconda](https://docs.conda.io/en/latest/miniconda.html) Python distribution installed. It comes with two conda environments described below. 
 
 With a single Docker command, we can accomplish several things at once (see the Getting Started guides linked above for more detail):
 - only on the first run: pull the Docker image from the Docker Hub account `appliedai` and the repository `packt` with the tag `latest` 
@@ -118,8 +275,8 @@ With a single Docker command, we can accomplish several things at once (see the 
 - set the environment variable `QUANDL_API_KEY` with the value of your key (that you need to fill in for `<your API key>`), and
 - start a `bash` terminal inside the container, resulting in a new command prompt for the user `packt`.
 
-1. Open a Terminal or a Powershell window,
-2. Navigate to the directory containing the [ML4T](https://github.com/stefan-jansen/machine-learning-for-trading) code samples that you sourced above,
+1. Open a Terminal or a Powershell window.
+2. Navigate to the directory containing the [ML4T](https://github.com/stefan-jansen/machine-learning-for-trading) code samples that you sourced above.
 3. In the root directory of the local version of the repo, run the following command, taking into account the different path formats required by Mac and Windows:
     - **Mac OS**: you can use the `pwd` command as a shell variable that contains the absolute path to the present working directory (and you could use `$QUANDL_API_KEY` if you created such an environment variable in the previous step):  
         ```docker
@@ -131,39 +288,59 @@ With a single Docker command, we can accomplish several things at once (see the 
      docker run -it -v C:/Users/stefan/Documents/machine-learning-for-trading:/home/packt/ml4t -p 8888:8888 -e QUANDL_API_KEY=<your API key> --name ml4t appliedai/packt:latest bash
      ```              
 4. Run `exit` from the container shell to exit and stop the container. 
-5. To resume working, you can run `docker start -a -i ml4t` from Mac OS terminal or Windows Powershell in the root directory to restart the container and attach it to the host shell in interactive mode (see Docker docs for more detail).                                                                                                                                                                                                                                                                                                                                                                                                  
+5. To resume working, you can run `docker start -a -i ml4t` from Mac OS terminal or Windows Powershell in the root directory to restart the container and attach it to the host shell in interactive mode (see Docker docs for more detail).
+
+> To update the Docker image to the latest version, run:
+> ```docker pull appliedai/packt:latest```
 
 ### Running the notebooks from the container
 
-Now you are running a shell inside the container and can access the various [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). Run `conda env list` to see that there are a `base`, `ml4t` (default), `ml4t-dl` and an `ml4t-zipline` environments that we will use as follows:
+Now you are running a shell inside the container and can access both [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). Run `conda env list` to see that there are a `base`, `ml4t` (default), and a `backtest` environments.
 
-| Part(s)   | Chapters        | Name         |
-|-----------|-----------------|--------------|
-| 1, 2 & 3  | 2-16, Appendix  | ml4t   |
-| 4         | 17-22*           | ml4t-dl  |
-| all | throughout              | ml4t-zipline
+The `backtest` environment is necessary because the latest version of Zipline 1.4.1 only support Python 3.6 and older versions of various other dependencies that partly also require compilation. I hope to update Zipline in the future to run on Python 3.8 as well.
 
-> the Deep Reinforcement Learning examples require TensorFlow 2.2, which currently is only available for Linux via `conda` for GPU; the notebooks contain instructions for upgrading via `pip`. Check [here](https://anaconda.org/anaconda/tensorflow) for current CPU and [here](https://anaconda.org/anaconda/tensorflow-gpu) for current GPU version support.
+We use the environment `ml4t` except for a dozen notebooks related to backtesting that use Zipline directly inputs generated by Zipline. The noteooks that require the `backtest` environment contain a notification. 
 
-- You can switch to another environment using `conda activate <env_name>`.
-- Alternatively, you can switch from one environment to another from the jupyter notebook or jupyter lab thanks to the [nb_conda_kernels](https://github.com/Anaconda-Platform/nb_conda_kernels) extension (see below).
+> If you want to use a GPU for the deep learning examples, you can run `conda install tensorflow-gpu` if you have the proper [CUDA version](https://www.tensorflow.org/install/source#gpu) installed. 
+> **Alternatively**, you can leverage [TensorFlow's Docker](https://www.tensorflow.org/install/docker) images and install any additional libraries there; the DL examples don't require anything that's overly complicated to install.
+
+- You can switch to another environment using `conda activate <env_name>` or using the Jupyter Notebook or Jupyter Lab Kernel menu thanks to the [nb_conda_kernels](https://github.com/Anaconda-Platform/nb_conda_kernels) extension (see below).
 - You may see an error message suggesting you run `conda init bash`. After doing so, reload the shell with the command `source .bashrc`.
 
 ### Ingesting Zipline data
 
-To run Zipline backtests, we need to `ingest` data. See the [Beginner Tutorial](https://www.zipline.io/beginner-tutorial.html) for more information. 
+To run Zipline backtests, we need to `ingest` data. See the [Beginner Tutorial](https://zipline.ml4trading.io/beginner-tutorial.html) for more information. 
 
 The image has been configured to store the data in a `.zipline` directory in the directory where you started the container (which should be the root folder of the starter code you've downloaded above). 
 
 From the command prompt of the container shell, run
 ```bash
-conda activate ml4t-zipline
-zipline ingest
+conda activate backtest
+zipline ingest -b quandl
 ``` 
 You should see numerous messages as Zipline processes around 3,000 stock price series.
 
-> When running a backtest, you will likely encounter an [error](https://github.com/quantopian/zipline/issues/2517) because the current Zipline version requires a country code entry in the exchanges table of the `assets-7.sqlite` database where it stores the asset metadata.
-> The linked [GitHub issue](https://github.com/quantopian/zipline/issues/2517) describes how to address this by opening the [SQLite database](https://sqlitebrowser.org/dl/) and entering `US` in the `country_code` field of the exchanges.
+#### Known Zipline issues
+
+> I have patched the following country code issue in the [latest Zipline version](https://github.com/stefan-jansen/zipline/commit/b33e5c955a58d888f55101874f45cd141c61d3e1), so you should not have to manually fiddle with the asset database any longer.
+
+When running a backtest, you will likely encounter an [error](https://github.com/quantopian/zipline/issues/2517) because the current Zipline version requires a country code entry in the exchanges table of the `assets-7.sqlite` database where it stores the asset metadata.
+
+The linked [GitHub issue](https://github.com/quantopian/zipline/issues/2517) describes how to address this by opening the [SQLite database](https://sqlitebrowser.org/dl/) and entering `US` in the `country_code` field of the exchanges table.
+
+In practice, this looks as follows:
+
+1. Use the [SQLite Browser](https://sqlitebrowser.org/dl/) to open the file `assets-7.sqlite` in the directory containing your latest bundle download. The path will look like this (on Linux/Max OSX) if you ran the command as just described:  `~/machine-learning-for-trading/data/.zipline/data/quandl/2020-12-29T02;06;08.894865/`
+2. Select the table `exchanges` as outlined in the following screenshot:
+<p align="center">
+<img src="https://i.imgur.com/khq6gtX.png" title="Modifying QUANDL SQLite - Step 1" width="50%"/>
+</p>
+3. Insert the country code and save the result (you'll get a prompt when closing the program):
+<p align="center">
+<img src="https://i.imgur.com/mtdiylk.png" title="Modifying QUANDL SQLite - Step 1" width="50%"/>
+</p>
+
+That's all. Unfortunately, you (had to..) repeat this everytime you run `zipline ingest -b quandl`. This error still occurs when you run `zipline ingest` for the default `quantopian-quandl` bundle because this command bypasses the `ingest` process and downloads instead a compressed version of the result generated by an earlier version of Zipline.  
 
 ### Working with notebooks int the Docker container
 
@@ -181,92 +358,3 @@ There are also `alias` shortcuts for each so you don't have to type them:
 The container terminal will display a few messages while spinning up the jupyter server. When complete, it will display a URL that you should paste into your browser to access the jupyter server from the current working directory.
 
 You can modify any of the environments using the standard conda workflow outlined below; see Docker [docs](https://docs.docker.com/storage/) for how to persist containers after making changes.  
-
-## How to install the required libraries using `conda` environments
-
-The code examples have been developed using Anaconda's [miniconda](https://docs.conda.io/en/latest/miniconda.html) distribution to facilitate dependency management, in particular on Windows machines. 
-
-If you are experienced (and work in a Unix-based environment), feel free to create your own environment using `pip`. You could just install the packages required for the notebooks you are interested in; however, challenges to get the patched Zipline version to work properly will likely remain.
-
-### Install miniconda
-
-The notebooks rely on three different virtual environments based on [miniconda3](https://docs.conda.io/en/latest/miniconda.html) that you need to install first. 
-
-You can find detailed instructions for various operating systems [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
-
-### Create conda environment from a file for this book
-
-[conda] is the package manager provided by the [Anaconda](https://www.anaconda.com/) python distribution that is tailored to facilitating the installation of data science libraries.
-
-Just like for [virtual environments](https://docs.python.org/3/tutorial/venv.html) for generic python installations, `conda` permits the creation of separate [environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) that are based on the same interpreter (miniconda3 if you followed the above instructions) but can contain different package and versions of packages. See also [here](https://towardsdatascience.com/getting-started-with-python-environments-using-conda-32e9f2779307) for a more detailed tutorial.
-
-You can create a new conda environment with name `env_name` and one or more packages with a specific version number using the command: 
-
-```bash
-conda create --name env_name package=version_number 
-```
-e.g.
-```bash
-conda create --name pandas_environment pandas=1.05
-```
-
-Here, we will create environments from files to ensure you install the library versions that the code has been tested with. There are separate environment specs for parts 1, 2, 3 and 4 as described in the following table. They differ by operating system and can be found under the respective path.
-
-| Name          |Part(s)    | Chapters        | Path |
-|---------------|-----------|-----------------|----------------------------------------------|
-| ml4t          |1, 2 & 3   | 2-16, appendix  |  installation/{linux &#x7c; macos &#x7c; windows}/ml4t.yml    |
-| ml4t-dl       |4          | 17-22           | installation//{linux &#x7c; macos &#x7c; windows}/ml4t_dl.yml   |
-| ml4t-zipline  | all | throughout           |  installation/linux/ml4t_zipline.yml   |
-
-> *the Deep Reinforcement Learning examples require TensorFlow 2.2, which currently is only available via `conda` for GPUC; the notebooks contain instructions for upgrading via `pip`. 
-
-To create the environment with the name `ml4t` (specified in the file) for `linux`, from the repository's root directory, just run:
-
-```bash
-conda env create -f installation/linux/ml4t.yml
-```
-
-or, for Max OS X
-
-```bash
-conda env create -f installation/macos/ml4t.yml
-```
-from the command line in this directory.
-
-### Activate conda environment
-
-After you've create it, you can activate the environment using its name, which in our case is `ml4t`:
-
-```bash
-conda activate ml4t
-```
-
-To deactivate, simply use
-
-```bash
-conda deactivate
-```
-
-## Working with Jupyter notebooks
-
-This section covers how to set up notebook extension that facilitate working in this environment and how to convert notebooks to python script if preferred. 
-
-### Set up jupyter extensions
-
-jupyter notebooks can use a range of [extentsion](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) provided by the community. There are many useful ones that are described in the [documentation](https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/).
-
-The notebooks in this repo are formatted to use the [Table of Contents (2)](https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/nbextensions/toc2/README.html) extension. For the best experience, activate it using the Configurator in the [Nbextensions](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) tab available in your browser after starting the jupyter server. Modify the settings to check the option 'Leave h1 items out of ToC' if not set by default.
-
-### Converting jupyter notebooks to python scripts
-
-The book uses [jupyter](https://jupyter.org/) notebooks to present the code with extensive commentary and context information and facilitate the visualization of results in one place. Some of the code examples are longer and make more sense to run as `python` scripts; you can convert a notebook to a script by running the following on the command line:
-
-```bash
-$ jupyter nbconvert --to script [YOUR_NOTEBOOK].ipynb
-```
-
-## Additional installation instructions
-
-### TA-Lib
-
-For the python wrapper around TA-Lib, please follow installation instructions [here](https://mrjbq7.github.io/ta-lib/install.html).
